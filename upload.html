@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Upload Video - Premium Video Hub</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    #uploadStatus.ok { color: #00ffd1; }
+    #uploadStatus.fail { color: #ff3860; }
+    #uploadProgress { width: 100%; margin-top: 0.5rem; display: none; }
+    .hidden { display: none; }
+  </style>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Tabs logic
+      const tabButtons = document.querySelectorAll('.tab-button');
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabContents.forEach(content => content.classList.remove('active'));
+          button.classList.add('active');
+          const tabId = button.getAttribute('data-tab');
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+
+      // Thumbnail toggle logic
+      const thumbUploadRadio = document.getElementById('thumbUpload');
+      const thumbGalleryRadio = document.getElementById('thumbGallery');
+      const uploadContainer = document.getElementById('thumbnailUploadContainer');
+      const galleryContainer = document.getElementById('thumbnailGalleryContainer');
+
+      function toggleThumbnailOptions() {
+        if (thumbUploadRadio.checked) {
+          uploadContainer.classList.remove('hidden');
+          galleryContainer.classList.add('hidden');
+        } else {
+          uploadContainer.classList.add('hidden');
+          galleryContainer.classList.remove('hidden');
+        }
+      }
+      thumbUploadRadio.addEventListener('change', toggleThumbnailOptions);
+      thumbGalleryRadio.addEventListener('change', toggleThumbnailOptions);
+      toggleThumbnailOptions(); // initialize state
+
+      // Status box and progress bar
+      const uploadStatus = document.getElementById('uploadStatus');
+
+      // Embed form submit handler
+      const embedForm = document.getElementById('embedForm');
+      embedForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        uploadStatus.className = '';
+        uploadStatus.textContent = 'Adding embedded video…';
+
+        const formData = new FormData(embedForm);
+
+        try {
+          const res = await fetch('/embed', {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to add embedded video');
+          uploadStatus.textContent = '✅ Embedded video added successfully! Redirecting…';
+          uploadStatus.className = 'ok';
+          setTimeout(() => window.location.href = '/', 1200);
+        } catch (err) {
+          uploadStatus.textContent = '❌ ' + err.message;
+          uploadStatus.className = 'fail';
+        }
+      });
+
+      // Upload form submit handler
+      const uploadForm = document.getElementById('uploadForm');
+
+      // Create and add progress bar element inside upload form
+      let progressBar = document.getElementById('uploadProgress');
+      if (!progressBar) {
+        progressBar = document.createElement('progress');
+        progressBar.id = 'uploadProgress';
+        progressBar.max = 100;
+        uploadForm.appendChild(progressBar);
+      }
+
+      uploadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        uploadStatus.className = '';
+        uploadStatus.textContent = 'Uploading video…';
+        progressBar.style.display = 'block';
+        progressBar.value = 0;
+
+        const formData = new FormData(uploadForm);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/upload');
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percent = Math.round((event.loaded / event.total) * 100);
+            progressBar.value = percent;
+          }
+        };
+
+        xhr.onload = () => {
+          progressBar.style.display = 'none';
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const resp = JSON.parse(xhr.responseText);
+              uploadStatus.textContent = '✅ Upload successful! Redirecting…';
+              uploadStatus.className = 'ok';
+              setTimeout(() => window.location.href = '/', 1200);
+            } catch {
+              uploadStatus.textContent = '✅ Upload successful! Redirecting…';
+              uploadStatus.className = 'ok';
+              setTimeout(() => window.location.href = '/', 1200);
+            }
+          } else {
+            try {
+              const resp = JSON.parse(xhr.responseText);
+              uploadStatus.textContent = '❌ ' + (resp.error || 'Upload failed');
+              uploadStatus.className = 'fail';
+            } catch {
+              uploadStatus.textContent = '❌ Upload failed';
+              uploadStatus.className = 'fail';
+            }
+          }
+        };
+
+        xhr.onerror = () => {
+          progressBar.style.display = 'none';
+          uploadStatus.textContent = '❌ Network error during upload';
+          uploadStatus.className = 'fail';
+        };
+
+        xhr.send(formData);
+      });
+    });
+  </script>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <h1 class="logo"><a href="/" style="color:#00ffd1; text-decoration:none;">Premium Video Hub</a></h1>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="/upload.html" aria-current="page">Upload Video</a></li>
+          <li><a href="/">Home</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container upload-container">
+    <h2>Upload Your Video</h2>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-button active" data-tab="embed">Embed via URL</button>
+      <button class="tab-button" data-tab="upload">Upload Video File</button>
+    </div>
+
+    <!-- Tab Contents -->
+    <section id="embed" class="tab-content active">
+      <form id="embedForm" class="upload-form">
+        <div class="form-group">
+          <label for="embedUrl">Video Embed URL</label>
+          <input
+            type="url"
+            id="embedUrl"
+            name="embedUrl"
+            placeholder="https://www.youtube.com/embed/VIDEO_ID"
+            required
+          />
+          <small class="hint">Paste the embed link from YouTube, Vimeo, etc.</small>
+        </div>
+        <button type="submit" class="btn-primary">Add Embedded Video</button>
+      </form>
+    </section>
+
+    <section id="upload" class="tab-content">
+      <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="videoTitle">Video Title</label>
+          <input
+            type="text"
+            id="videoTitle"
+            name="videoTitle"
+            placeholder="Enter title"
+            required
+            maxlength="100"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="videoDescription">Video Description</label>
+          <textarea
+            id="videoDescription"
+            name="videoDescription"
+            rows="4"
+            placeholder="Write a short description"
+            maxlength="500"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="videoTags">Video Tags (comma separated)</label>
+          <input
+            type="text"
+            id="videoTags"
+            name="videoTags"
+            placeholder="e.g. nature,travel,adventure"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="videoFile">Choose Video File</label>
+          <input type="file" id="videoFile" name="videoFile" accept="video/*" required />
+        </div>
+
+        <div class="form-group">
+          <label>Choose Thumbnail</label>
+          <div class="thumbnail-options">
+            <input
+              type="radio"
+              id="thumbUpload"
+              name="thumbnailChoice"
+              value="upload"
+              checked
+            />
+            <label for="thumbUpload">Upload New Thumbnail</label>
+
+            <input
+              type="radio"
+              id="thumbGallery"
+              name="thumbnailChoice"
+              value="gallery"
+            />
+            <label for="thumbGallery">Choose from Gallery</label>
+          </div>
+
+          <div id="thumbnailUploadContainer" class="thumb-container">
+            <input type="file" id="thumbnailUpload" name="thumbnailUpload" accept="image/*" />
+          </div>
+
+          <div id="thumbnailGalleryContainer" class="thumb-container hidden">
+            <!-- Thumbnails from gallery will load here -->
+            <p>Select a thumbnail from your previously uploaded images (coming soon)</p>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary">Upload Video</button>
+      </form>
+    </section>
+
+    <div id="uploadStatus" role="alert" aria-live="polite"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 Premium Video Hub. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>

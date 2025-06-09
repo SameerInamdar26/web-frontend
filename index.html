@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Premium Video Hub</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script defer src="js/app.js"></script>
+  <script defer src="js/videos.js"></script>
+</head>
+<body>
+  <header class="header" role="banner">
+    <div class="container">
+      <h1 class="logo">Premium Video Hub</h1>
+      <nav role="navigation" aria-label="Primary Navigation">
+        <ul class="nav-links">
+          <li><a href="upload.html">Upload Video</a></li>
+          <li><a href="#gallery-section">Video Gallery</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" role="main">
+    <!-- Video Gallery -->
+    <section id="gallery-section" class="gallery-section" aria-label="Video Gallery Section">
+      <h2>Video Gallery</h2>
+      <div id="videoGallery" class="video-gallery" aria-live="polite" aria-relevant="additions">
+        <!-- Videos loaded dynamically here -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <p>&copy; 2025 Premium Video Hub. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>

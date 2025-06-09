@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Watch Video - Premium Video Hub</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script defer src="js/video.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <h1 class="logo"><a href="/" style="color:#00ffd1; text-decoration:none;">Premium Video Hub</a></h1>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="/upload.html">Upload Video</a></li>
+          <li><a href="/">Home</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container video-page-container">
+    <section class="video-player-section">
+      <div id="videoContainer" class="video-container">
+        <!-- Video or iframe embed will be injected here -->
+      </div>
+
+      <div class="video-info">
+        <h2 id="videoTitle">Loading title...</h2>
+        <p id="videoDescription" class="description">Loading description...</p>
+
+        <div class="video-stats">
+          <div class="stats-item" id="viewsCount">0 views</div>
+
+          <div class="likes-container">
+            <button id="likeBtn" aria-label="Like this video" class="like-button">
+              👍 <span id="likeCount">0</span>
+            </button>
+            <button id="dislikeBtn" aria-label="Dislike this video" class="dislike-button">
+              👎 <span id="dislikeCount">0</span>
+            </button>
+          </div>
+        </div>
+
+        <button id="shareBtn" class="btn-primary share-btn" aria-label="Share video">
+          Share
+        </button>
+      </div>
+    </section>
+
+    <aside class="suggested-videos-section">
+      <h3>Suggested Videos</h3>
+      <ul id="suggestedVideosList" class="suggested-videos-list">
+        <!-- Suggested videos loaded dynamically here -->
+      </ul>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 Premium Video Hub. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
