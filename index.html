@@ -36,5 +36,29 @@
       <p>&copy; 2025 Premium Video Hub. All rights reserved.</p>
     </div>
   </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('https://web-backend-ee9n.onrender.com/api/videos/suggested')
+        .then(res => res.json())
+        .then(videos => {
+          const gallery = document.getElementById('videoGallery');
+          videos.forEach(video => {
+            const videoCard = document.createElement('div');
+            videoCard.className = 'video-card';
+            videoCard.innerHTML = `
+              <img src="${video.thumbnail}" alt="${video.title}" />
+              <h3>${video.title}</h3>
+              <p>${(video.views / 1000).toFixed(1)}K views</p>
+              <a href="video.html?id=${video.id}" class="watch-link">Watch Now</a>
+            `;
+            gallery.appendChild(videoCard);
+          });
+        })
+        .catch(() => {
+          document.getElementById('videoGallery').textContent = 'Failed to load videos.';
+        });
+    });
+  </script>
 </body>
 </html>

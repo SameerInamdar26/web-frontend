@@ -13,6 +13,9 @@
   </style>
   <script defer>
     document.addEventListener('DOMContentLoaded', () => {
+      const backendUrl = 'https://web-backend-ee9n.onrender.com';
+      const frontendUrl = 'https://web-frontend-one-omega.vercel.app';
+
       // Tabs logic
       const tabButtons = document.querySelectorAll('.tab-button');
       const tabContents = document.querySelectorAll('.tab-content');
@@ -45,7 +48,6 @@
       thumbGalleryRadio.addEventListener('change', toggleThumbnailOptions);
       toggleThumbnailOptions(); // initialize state
 
-      // Status box and progress bar
       const uploadStatus = document.getElementById('uploadStatus');
 
       // Embed form submit handler
@@ -58,7 +60,7 @@
         const formData = new FormData(embedForm);
 
         try {
-          const res = await fetch('/embed', {
+          const res = await fetch(`${backendUrl}/embed`, {
             method: 'POST',
             body: formData,
           });
@@ -66,7 +68,7 @@
           if (!res.ok) throw new Error(data.error || 'Failed to add embedded video');
           uploadStatus.textContent = '✅ Embedded video added successfully! Redirecting…';
           uploadStatus.className = 'ok';
-          setTimeout(() => window.location.href = '/', 1200);
+          setTimeout(() => window.location.href = frontendUrl, 1200);
         } catch (err) {
           uploadStatus.textContent = '❌ ' + err.message;
           uploadStatus.className = 'fail';
@@ -75,8 +77,6 @@
 
       // Upload form submit handler
       const uploadForm = document.getElementById('uploadForm');
-
-      // Create and add progress bar element inside upload form
       let progressBar = document.getElementById('uploadProgress');
       if (!progressBar) {
         progressBar = document.createElement('progress');
@@ -95,7 +95,7 @@
         const formData = new FormData(uploadForm);
 
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/upload');
+        xhr.open('POST', `${backendUrl}/upload`);
 
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
@@ -111,11 +111,11 @@
               const resp = JSON.parse(xhr.responseText);
               uploadStatus.textContent = '✅ Upload successful! Redirecting…';
               uploadStatus.className = 'ok';
-              setTimeout(() => window.location.href = '/', 1200);
+              setTimeout(() => window.location.href = frontendUrl, 1200);
             } catch {
               uploadStatus.textContent = '✅ Upload successful! Redirecting…';
               uploadStatus.className = 'ok';
-              setTimeout(() => window.location.href = '/', 1200);
+              setTimeout(() => window.location.href = frontendUrl, 1200);
             }
           } else {
             try {
@@ -246,7 +246,6 @@
           </div>
 
           <div id="thumbnailGalleryContainer" class="thumb-container hidden">
-            <!-- Thumbnails from gallery will load here -->
             <p>Select a thumbnail from your previously uploaded images (coming soon)</p>
           </div>
         </div>
